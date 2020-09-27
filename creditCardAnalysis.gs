@@ -273,6 +273,7 @@ function get_column_letter_from_name(row, name){
 }
   
 //==================================
+//Compare google folder content to a table and return files not appearing in table
 function get_new_files_by_list(folderID, statusSheet){
 
   var FilesIdColumnLetter = get_column_letter_from_name(get_row_values(statusSheet,1), 'File ID');
@@ -295,7 +296,7 @@ function get_new_files_by_list(folderID, statusSheet){
 
 
 //==================================
-function main(howManyDaysBack = 60){
+function main(){
   var monitoredFolder = 'Credit Card Bills';
   var analysisFileID = '1kNx9pUtVgyKJWAZR_CvdSz9_3aDrdgxwFzrRwB5EsSQ';
   var analysisFile = SpreadsheetApp.openById(analysisFileID);
@@ -343,43 +344,10 @@ function main(howManyDaysBack = 60){
 }
 
 //==================================
-function triggered_1day_back(){
-  main(1);
-}
-
-//==================================
-function update_category(){
-  var analysisFileID = '1kNx9pUtVgyKJWAZR_CvdSz9_3aDrdgxwFzrRwB5EsSQ';
-  var analysisFile = SpreadsheetApp.openById(analysisFileID);
-  var analysisDbSheet = analysisFile.getSheetByName('DB');
-  var analysisCategoriesSheet = analysisFile.getSheetByName('Categories');
-  var categoriesTable = analysisCategoriesSheet.getDataRange().getValues();
-  
-  var lastRow = analysisDbSheet.getLastRow();
-  var lastCol = analysisDbSheet.getLastColumn();
-  
-  
-  var data = analysisDbSheet.getRange(1,1,lastRow,lastCol).getValues();
-  
-  var categoryCol = data[0].indexOf('Category')+1;
-  var nameCol = data[0].indexOf('Business Name')+1;
-  
-  for (var r=2; r < lastRow; r++){
-    
-    var name = analysisDbSheet.getRange(r, nameCol).getValue();
-    var category = get_category(name, categoriesTable);
-    
-    analysisDbSheet.getRange(r, categoryCol).setValue(category);
-  }
-    
-}
-
-//==================================
 function onOpen() {
   var spreadsheet = SpreadsheetApp.getActive();
   var menuItems = [
     {name: 'Check For New Files', functionName: 'main'},
-    {name: 'Refresh Categories', functionName: 'update_category'}
   ];
   spreadsheet.addMenu('Credit Cards Analysis', menuItems);
 }
