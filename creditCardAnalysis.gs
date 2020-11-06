@@ -40,15 +40,15 @@ Headers:
 */
 
 //==================================
-//Get GDrive folder ID from folder name 
-function get_folder_id(monitoredFolder){
-  var folders = DriveApp.getFoldersByName(monitoredFolder);
-  var folderID = null;
-  if (folders.hasNext()){
-    folderID = folders.next().getId();
-  }
-  return folderID;
-}
+//PARAMETERS
+ID_ANALYSIS_FILE = ''
+ID_REPORTS_FOLDER = ''
+
+FILENAME_PREFIX_VISA = 'Transactions'
+FILENAME_PREFIX_ISRACARD = 'Export'
+FILENAME_PREFIX_MAX = 'transaction'
+
+var transactionDetailsTemplate = new makeStruct("inputDate, fid, fname, type, nCard, billingMonth, transactionDate, name, amount, currency");
 
 //==================================
 //Get the list of files from a folder
@@ -59,7 +59,7 @@ function get_file_list(folderID){
 
 //==================================
 //Create an arbitrary struct (for building the rows in the db)
-function makeStruct(names) {
+function makeStruct(names = transactionDetailsTemplate) {
   var names = names.split(', ');
   var count = names.length;
   function constructor() {
@@ -76,13 +76,13 @@ function get_credit_card_type(fid){
   var file = DriveApp.getFileById(fid);
   var filename = file.getName();
   
-  if(filename.startsWith('Export')){
+  if(filename.startsWith(FILENAME_PREFIX_ISRACARD)){
     return 'Isracard';
   }
-  else if(filename.startsWith('Transactions')){
+  else if(filename.startsWith(FILENAME_PREFIX_VISA)){
           return 'Visa';
           }
-  else if(filename.startsWith('transaction')){
+  else if(filename.startsWith(FILENAME_PREFIX_MAX)){
     return 'Max';
   }
   else{
@@ -91,14 +91,14 @@ function get_credit_card_type(fid){
 }
 
 //==================================
-// Parse MAX credit card files (begins with "transaction")
-function get_max_data(f_handler, categoriesTable){
+// Parse MAX credit card files
+function get_max_data(f_handler, fid, categoriesTable){
   sheets = f_handler.getSheets();
-  var item = new makeStruct("inputDate, type, nCard, billingMonth, transactionDate, name, amount, currency");
   var out_data = [];
   var nCard = '';
   var billingMonth = new Date(0);
   var inputDate = new Date();
+  var fname = SpreadsheetApp.openById(fid).getName()
   
   for (var s = 0; s < sheets.length; s++){
     lastRow = sheets[s].getLastRow();
@@ -108,24 +108,22 @@ function get_max_data(f_handler, categoriesTable){
         
     for (var r=0; r < lastRow; r++){
       var row = data[r];
- 
-      if (row[0].split('/').length == 2){
-        billingMonth.setYear(row[0].split('/')[1]);
-        billingMonth.setMonth(row[0].split('/')[0]);
-        billingMonth.setMonth(billingMonth.getMonth()-1); // because JS Date months are zero-based
-        continue;
-      }
-      else if (row[0].split('-').length == 3){
-        var formattedRow = new item();
+
+      if (row[0].split('-').length == 3){
+        var formattedRow = new transactionDetailsTemplate();
         formattedRow.inputDate = inputDate;
         formattedRow.type = 'Max';
         formattedRow.nCard = row[3];
-        formattedRow.billingMonth = billingMonth;
-        formattedRow.transactionDate = new Date(row[0].split('-')[2], row[0].split('-')[1], row[0].split('-')[0]);
-
+        
+        formattedRow.billingMonth = new Date(row[9].split('-')[2], row[9].split('-')[1]-1, row[9].split('-')[0]); //month is zero-based
+        
+        formattedRow.transactionDate = new Date(row[0].split('-')[2], row[0].split('-')[1]-1, row[0].split('-')[0]); //month is zero-based
+         
         formattedRow.name = row[1];
         formattedRow.amount = row[5]
         formattedRow.currency = row[6]
+        formattedRow.fid = fid;
+        formattedRow.fname = fname;
                 
         out_data.push(formattedRow);
         continue;
@@ -137,27 +135,27 @@ function get_max_data(f_handler, categoriesTable){
  }
 
 //==================================
-// Parse Isracard credit card files (begins with "export")
-function get_isracard_data(f_handler, categoriesTable){
+// Parse Isracard credit card files
+function get_isracard_data(f_handler, fid, categoriesTable){
   sheet = f_handler.getSheets()[0];
   lastRow = sheet.getLastRow();
   lastCol = sheet.getLastColumn();
   var data = sheet.getRange(1,1,lastRow,lastCol).getValues();
-  var item = new makeStruct("inputDate, type, nCard, billingMonth, transactionDate, name, amount, currency");
   var out_data = [];
   var nCard = '';
   var billingMonth = new Date(0); 
   var inputDate = new Date();
   var abroadCharges = 0; 
+  var fname = SpreadsheetApp.openById(fid).getName()
   
   for (var r=0; r < lastRow; r++){
     var row = data[r];
     
     if (row[1] == 'מועד חיוב'){
       nCard = row[0].split(' - ')[row[0].split(' - ').length -1];
-      billingMonth.setYear(['20', row[2].split('/')[2]].join(''));
-      billingMonth.setMonth(row[2].split('/')[1]);
-      billingMonth.setMonth(billingMonth.getMonth()-1); // because JS Date months are zero-based
+      billingMonth.setFullYear(['20', row[2].split('/')[2]].join(''));
+      billingMonth.setMonth(row[2].split('/')[1]-1);
+      //billingMonth.setMonth(billingMonth.getMonth()-1); // because JS Date months are zero-based
       continue;
     }
     else if (row[0] == 'עסקאות בארץ'){
@@ -169,13 +167,15 @@ function get_isracard_data(f_handler, categoriesTable){
       continue;
     }
     else if (row[0].split('/').length == 3){
-      var formattedRow = new item();
+      var formattedRow = new transactionDetailsTemplate();
       formattedRow.inputDate = inputDate;
       formattedRow.type = 'Isracard';
       formattedRow.nCard = nCard;
       formattedRow.billingMonth = billingMonth;
+      formattedRow.fid = fid;
+      formattedRow.fname = fname;
       
-      formattedRow.transactionDate = new Date(row[0].split('/')[2],row[0].split('/')[1],row[0].split('/')[0]);
+      formattedRow.transactionDate = new Date(row[0].split('/')[2], row[0].split('/')[1]-1, row[0].split('/')[0]); //month is zero-based
       
       if (abroadCharges == 1){
         formattedRow.name = row[2];
@@ -201,14 +201,14 @@ function get_isracard_data(f_handler, categoriesTable){
  }
 
 //==================================
-// Parse Visa credit card files (begins with "Transactions")
-function get_visa_data(f_handler, categoriesTable){
+// Parse Visa credit card files 
+function get_visa_data(f_handler, fid, categoriesTable){
   sheets = f_handler.getSheets();
-  var item = new makeStruct("inputDate, type, nCard, billingMonth, transactionDate, name, amount, currency");
   var out_data = [];
   var nCard = '';
   var billingMonth = new Date(0);
   var inputDate = new Date();
+  var fname = SpreadsheetApp.openById(fid).getName()
   
   for (var s = 0; s < sheets.length; s++){
     lastRow = sheets[s].getLastRow();
@@ -228,21 +228,24 @@ function get_visa_data(f_handler, categoriesTable){
       }
       else if (Object.prototype.toString.call(row[0]) == "[object Date]"){
 
-        var formattedRow = new item();
+        var formattedRow = new transactionDetailsTemplate();
         formattedRow.inputDate = inputDate;
         formattedRow.type = 'Visa';
         formattedRow.nCard = nCard;
         
         billingMonth.setYear(row[0].getFullYear());
-        billingMonth.setMonth(row[0].getMonth());
+        billingMonth.setMonth(row[0].getMonth()+1);
         
         formattedRow.billingMonth = billingMonth.toLocaleDateString("en-US");
         formattedRow.transactionDate = row[0].toLocaleDateString("en-US");
+        //formattedRow.transactionDate = new Date(row[0].split('/')[2], row[0].split('/')[1]-1, row[0].split('/')[0]); //month is zero-based
 
         formattedRow.name = row[1];
         formattedRow.amount = row[3]
         formattedRow.currency = '₪';
-                
+        formattedRow.fid = fid;
+        formattedRow.fname = fname;
+                     
         out_data.push(formattedRow);
         continue;
       }
@@ -297,15 +300,12 @@ function get_new_files_by_list(folderID, statusSheet){
 
 //==================================
 function main(){
-  var monitoredFolder = 'Credit Card Bills';
-  var analysisFileID = '1kNx9pUtVgyKJWAZR_CvdSz9_3aDrdgxwFzrRwB5EsSQ';
-  var analysisFile = SpreadsheetApp.openById(analysisFileID);
+  var analysisFile = SpreadsheetApp.openById(ID_ANALYSIS_FILE);
   var analysisDbSheet = analysisFile.getSheetByName('DB');
   var analysisStatusSheet = analysisFile.getSheetByName('Status');
   var analysisCategoriesSheet = analysisFile.getSheetByName('Categories');
   
-  var monitoredFolderID = get_folder_id(monitoredFolder);
-  var newFiles = get_new_files_by_list(monitoredFolderID, analysisStatusSheet);
+  var newFiles = get_new_files_by_list(ID_REPORTS_FOLDER, analysisStatusSheet);
   var categoriesTable = analysisCategoriesSheet.getDataRange().getValues();
   
   for (var i=0; i<newFiles.length; i++){
@@ -316,13 +316,13 @@ function main(){
     
     switch(fileType){
       case "Max":
-        out = get_max_data(src_fh, categoriesTable);
+        out = get_max_data(src_fh, fid, categoriesTable);
         break;
       case 'Isracard':
-        out = get_isracard_data(src_fh, categoriesTable);
+        out = get_isracard_data(src_fh, fid, categoriesTable);
         break;
       case 'Visa':
-        out = get_visa_data(src_fh, categoriesTable);
+        out = get_visa_data(src_fh, fid, categoriesTable);
       default:
         data = 0
         break;
@@ -338,7 +338,6 @@ function main(){
       analysisDbSheet.appendRow(data[k]);
     }
   }
-  update_status_sheet(newFiles, analysisStatusSheet);
   
   Logger.log('done!');
 }
