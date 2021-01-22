@@ -41,14 +41,15 @@ Headers:
 
 //==================================
 //PARAMETERS
-ID_ANALYSIS_FILE = ''
-ID_REPORTS_FOLDER = ''
+ID_ANALYSIS_FILE = '1kNx9pUtVgyKJWAZR_CvdSz9_3aDrdgxwFzrRwB5EsSQ'
+ID_REPORTS_FOLDER = '1MUEecaXpZAHuNjuLgGViAiFi0oXnQPyf'
 
 FILENAME_PREFIX_VISA = 'Transactions'
 FILENAME_PREFIX_ISRACARD = 'Export'
 FILENAME_PREFIX_MAX = 'transaction'
 
-var transactionDetailsTemplate = new makeStruct("inputDate, fid, fname, type, nCard, billingMonth, transactionDate, name, amount, currency");
+const transactionDetailsTemplate = new makeStruct("inputDate, fid, fname, type, nCard, billingMonth, transactionDate, name, amount, currency");
+const dateRegex = new RegExp(/^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/g)
 
 //==================================
 //Get the list of files from a folder
@@ -121,7 +122,7 @@ function get_max_data(f_handler, fid, categoriesTable){
          
         formattedRow.name = row[1];
         formattedRow.amount = row[5]
-        formattedRow.currency = row[6]
+        formattedRow.currency = charToCurrencyCode(row[6]);
         formattedRow.fid = fid;
         formattedRow.fname = fname;
                 
@@ -180,12 +181,12 @@ function get_isracard_data(f_handler, fid, categoriesTable){
       if (abroadCharges == 1){
         formattedRow.name = row[2];
         formattedRow.amount = row[5];
-        formattedRow.currency = row[6];
+        formattedRow.currency = charToCurrencyCode(row[6]);
       }
       else{
         formattedRow.name = row[1];
         formattedRow.amount = row[4];
-        formattedRow.currency = row[5];
+        formattedRow.currency = charToCurrencyCode(row[5]);
         }
       
       if(formattedRow.name == 'TOTAL FOR DATE'){ continue;}
@@ -209,49 +210,65 @@ function get_visa_data(f_handler, fid, categoriesTable){
   var billingMonth = new Date(0);
   var inputDate = new Date();
   var fname = SpreadsheetApp.openById(fid).getName()
-  
+
+  const billMonthRegex = new RegExp(/\s(?<billMonth>[0-9]+\/[0-9]+)[^0-9\/]/);
+  const nCardRegex = new RegExp(/\s([0-9]{4})/); 
+
   for (var s = 0; s < sheets.length; s++){
     lastRow = sheets[s].getLastRow();
     lastCol = sheets[s].getLastColumn();
     var data = sheets[s].getRange(1,1,lastRow,lastCol).getValues();
 
-        
-    for (var r=0; r < lastRow; r++){
+    for (var r=0; r < lastRow - 1; r++){
       var row = data[r];
- 
-      if (Object.prototype.toString.call(row[0]) == "[object String]"){
-        if (row[0].startsWith('פירוט עסקות לכרטיס')){
-          var nCardRe = new RegExp(/(\d{3,4})/);
-          nCard = nCardRe.exec(row[0])[0];
+      //var isFullDate = dateRegex.exec(row[0]);
+      const dateCellFormat = typeof row[0];
+      
+      if (r < 3){ // first lines contain the billing date and card number
+        const billDate = billMonthRegex.exec(row[0]);
+        const nCardRe = nCardRegex.exec(row[0]);
+        
+        if (billDate != null){
+        billingMonth.setYear((parseInt(billDate.groups.billMonth.split('/')[1])));
+        billingMonth.setMonth(parseInt(billDate.groups.billMonth.split('/')[0])-1);
         }
-        continue;
+        if (nCardRe != null ){
+        nCard = nCardRe[0];
+        }
       }
-      else if (Object.prototype.toString.call(row[0]) == "[object Date]"){
+      //else if {dateCellFormat == "object" || isFullDate != null){
+      else{
 
         var formattedRow = new transactionDetailsTemplate();
+
+        //determine transaction date
+        if (dateCellFormat == "object"){
+           formattedRow.transactionDate = row[0].toLocaleDateString("en-IL");
+        }
+        else{
+          var rSplit = row[0].split('/');
+          formattedRow.transactionDate = new Date("20" + rSplit[2], rSplit[1]-1, rSplit[0]); //month is zero-based 
+        } 
+
         formattedRow.inputDate = inputDate;
         formattedRow.type = 'Visa';
         formattedRow.nCard = nCard;
-        
-        billingMonth.setYear(row[0].getFullYear());
-        billingMonth.setMonth(row[0].getMonth()+1);
-        
         formattedRow.billingMonth = billingMonth.toLocaleDateString("en-US");
-        formattedRow.transactionDate = row[0].toLocaleDateString("en-US");
-        //formattedRow.transactionDate = new Date(row[0].split('/')[2], row[0].split('/')[1]-1, row[0].split('/')[0]); //month is zero-based
-
+    
         formattedRow.name = row[1];
-        formattedRow.amount = row[3]
-        formattedRow.currency = '₪';
+        var amountRegex = new RegExp(/[0-9].{0,10}\.[0-9]{0,5}/);
+
+        formattedRow.amount = amountRegex.exec(row[3])[0];
+        
+        formattedRow.currency = charToCurrencyCode('₪');
         formattedRow.fid = fid;
         formattedRow.fname = fname;
                      
         out_data.push(formattedRow);
-        continue;
+        continue; 
       }
-      else{ continue;}
-      }
-    }
+    } 
+  }
   return {'data': out_data, 'nRow': out_data.length, 'nCol': Object.keys(out_data[0]).length};
  }
 
@@ -323,8 +340,9 @@ function main(){
         break;
       case 'Visa':
         out = get_visa_data(src_fh, fid, categoriesTable);
+        break;
       default:
-        data = 0
+        out = [];
         break;
     }
     var data = [];
@@ -371,4 +389,45 @@ function REVERSELOOKUP(input, in_range){
   return Array.isArray(input) ?
       input.map(cell => map_value(cell[0], in_range)) :
       map_value(input, in_range);
+}
+
+//==================================
+function charToCurrencyCode(c){
+  var code;
+  
+  switch(c){
+    case String.fromCharCode(0x20aa): // Shekels
+      code = "ILS";
+      break;
+    case String.fromCharCode(0x24): // USD
+      code = "USD";
+      break;
+    case String.fromCharCode(0x20AC): // Euro
+      code = "EUR"; 
+      break;
+    default:
+      code = "NA";
+      break;
+  }
+  return code;
+}
+
+//==================================
+function GETILSRATE(thisCell, thisSheet, date, currencyChar){
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(thisSheet);
+  var cell = sheet.getRange(thisCell);
+  
+  cell.setFormula("=INDEX(GOOGLEFINANCE('CURRENCY:USDILS','price',G10:G),2,2)");
+  
+  return 0;
+  
+  //function getIlsRate(date, currencySymbol){
+    
+  //}
+  //date = "09/10/2020";
+  
+  //return ss;
+ 
 }
