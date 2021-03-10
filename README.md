@@ -26,9 +26,9 @@ That's it! the file should be ready now.
 Make sure to convert the file to a google sheet format.
 1. Inside the sheet file, select "Credit Card Analysis->Check For New Files"
 1. Wait for the "DB" sheet to fill up with the recent data
-1. Under "Categories" sheet, all the businesses that are unclassified will appear under the "ללא סיווג" column.   
- Copy each business to the relevant category.  
- Once you do - the business name should disappear from the "ללא סיווג" column and the chosen categoory will appear near every relevant transaction in the "DB " sheet.
+1. Under "Categories" sheet, all the businesses that are unclassified will appear under the "ללא סיווג" column. 
+Copy each business to the relevant category. 
+Once you do - the business name should disappear from the "ללא סיווג" column and the chosen categoory will appear near every relevant transaction in the "DB " sheet.
 
 # Tips And Tricks
 - Instead of manually converting each file to Google Sheet, you may configure your GDrive to automatically convert every office files to Google format. It will save some tedious work 
