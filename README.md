@@ -14,8 +14,8 @@ Note: make sure the duplicated file is NOT inside the folder created on stage 1.
 3. Cope the new spreadhseet file ID (should look like https://docs.google.com/spreadsheets/d/<SHEET_FILE_ID>/...)
 4. Inside the sheet file, select "Tools->Script Editor" from the menu
 5. Look for the following parameters and paste the relevant ID from the steps above:  
-`ID_ANALYSIS_FILE = '<FOLDER_ID>'`  
-`ID_REPORTS_FOLDER = '<SHEET_FILE_ID>'`  
+`ID_ANALYSIS_FILE = '<SHEET_FILE_ID>'`  
+`ID_REPORTS_FOLDER = '<FOLDER_ID>'`  
 Make sure to select "File->Save" from the menu and close the window. 
 
 That's it! the file should be ready now.
