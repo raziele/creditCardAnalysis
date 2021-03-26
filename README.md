@@ -21,11 +21,11 @@ Make sure to select "File->Save" from the menu and close the window.
 That's it! the file should be ready now.
 
 # Usage
-A. Place an exported report inside the folder created on stage 1 of the installation.
+1. Place an exported report inside the folder created on stage 1 of the installation.
 Make sure to convert the file to a google sheet format.
-B. Inside the sheet file, select "Credit Card Analysis->Check For New Files"
-C. Wait for the "DB" sheet to fill up with the recent data
-D. Under "Categories" sheet, all the businesses that are unclassified will appear under the "ללא סיווג" column. 
+2. Inside the sheet file, select "Credit Card Analysis->Check For New Files"
+3. Wait for the "DB" sheet to fill up with the recent data
+4. Under "Categories" sheet, all the businesses that are unclassified will appear under the "ללא סיווג" column. 
 Copy each business to the relevant category. 
 Once you do - the business name should disappear from the "ללא סיווג" column and the chosen categoory will appear near every relevant transaction in the "DB " sheet.
 
