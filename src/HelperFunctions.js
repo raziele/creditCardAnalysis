@@ -56,6 +56,7 @@ function get_file_list(folderID){
   return folderHandle.getFiles();
 }
 
+const transactionDetailsTemplate = new makeStruct("inputDate, fid, fname, type, nCard, billingMonth, transactionDate, name, amount, currency");
 //==================================
 //Create an arbitrary struct (for building the rows in the db)
 function makeStruct(names = transactionDetailsTemplate) {

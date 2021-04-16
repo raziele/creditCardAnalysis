@@ -8,7 +8,6 @@ function main(){
   const idReportFolder = PropertiesService.getDocumentProperties().getProperty('ID_REPORTS_FOLDER');
   const newFiles = get_new_files_by_list(idReportFolder, analysisStatusSheet);
   var categoriesTable = analysisCategoriesSheet.getDataRange().getValues();
-  const transactionDetailsTemplate = new makeStruct("inputDate, fid, fname, type, nCard, billingMonth, transactionDate, name, amount, currency");
 
 
   for (var i=0; i<newFiles.length; i++){
