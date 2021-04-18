@@ -22,12 +22,19 @@ function doReportFolderConfig(){
   var newReportFolderId = result.getResponseText();
   if (button == ui.Button.OK) {
     try{
-      const folderName = DriveApp.getFolderById(newId).getName();
+     // const folderName = DriveApp.getFolderById(newId).getName();
+      var folderName = DriveApp.getFolderById(newReportFolderId).getName();
+
+    }
+    catch(e){
+      ui.alert('Error! Folder not found - make sure the ID is right');
+    }
+    try{
       PropertiesService.getDocumentProperties().setProperty('ID_REPORTS_FOLDER',newReportFolderId);
       ui.alert('Success! Report folder is set to: ' + folderName);
     }
     catch(e){
-      ui.alert('Error! Folder not found - make sure the ID is right');
+      ui.alert('Error! Something was not right within the script');
     }
   } else if (button == ui.Button.CANCEL) {
   } else if (button == ui.Button.CLOSE) {
