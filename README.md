@@ -9,23 +9,24 @@ This is a project that aims to use files produced by Israeli credit card compani
  
 1. Create a new folder on Google Drive where you will store the exported reports. Call it however you like (mine is called "Credit Card Exported Files").
    Enter the folder and make sure to copy the folder ID from the URL (should look like https://drive.google.com/drive/folders/<FOLDER_ID>)
-2. Make your own copy of the [template sheet file][https://docs.google.com/spreadsheets/d/1cFWcpH2fhjfQh6ziOo9KEUYCI86uA7WOyUWJMKHLTSM/edit#gid=733610508]
+2. Make your own copy of the [template sheet file](https://docs.google.com/spreadsheets/d/1cFWcpH2fhjfQh6ziOo9KEUYCI86uA7WOyUWJMKHLTSM/edit#gid=733610508)
 Note: make sure the duplicated file is NOT inside the folder created on stage 1.
 3. Cope the new spreadhseet file ID (should look like https://docs.google.com/spreadsheets/d/<SHEET_FILE_ID>/...)
 4. Inside the sheet file, select "Tools->Script Editor" from the menu
-5. Look for the following parameters and paste the relevant ID from the steps above:
-ID_ANALYSIS_FILE = '<FOLDER_ID>'
-ID_REPORTS_FOLDER = '<SHEET_FILE_ID>'
+5. Look for the following parameters and paste the relevant ID from the steps above:  
+`ID_ANALYSIS_FILE = '<SHEET_FILE_ID>'`  
+`ID_REPORTS_FOLDER = '<FOLDER_ID>'`  
 Make sure to select "File->Save" from the menu and close the window. 
 
 That's it! the file should be ready now.
 
 # Usage
+
 1. Place an exported report inside the folder created on stage 1 of the installation.
 Make sure to convert the file to a google sheet format.
-2. Inside the sheet file, select "Credit Card Analysis->Check For New Files"
-3. Wait for the "DB" sheet to fill up with the recent data
-4. Under "Categories" sheet, all the businesses that are unclassified will appear under the "ללא סיווג" column. 
+1. Inside the sheet file, select "Credit Card Analysis->Check For New Files"
+1. Wait for the "DB" sheet to fill up with the recent data
+1. Under "Categories" sheet, all the businesses that are unclassified will appear under the "ללא סיווג" column. 
 Copy each business to the relevant category. 
 Once you do - the business name should disappear from the "ללא סיווג" column and the chosen categoory will appear near every relevant transaction in the "DB " sheet.
 
