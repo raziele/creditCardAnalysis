@@ -44,7 +44,7 @@ jobs:
           name: "CLASPRC_JSON"
           value: ${{ env.CLASPRC_JSON_FILE }}
           repository: ${{ github.repository }}
-          token: ${{ secrets.CLASPRC_JSON }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
 
       - name: Checkout repo
         id: checkout-repo
