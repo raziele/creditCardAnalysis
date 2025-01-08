@@ -3,27 +3,27 @@
 # Description
 This is a project that aims to use files produced by Israeli credit card companies, organizes them in a neat table and provide a basic dashboard (see screenshot below).
 
-![Google DataStudio Screenshot](/imgs/google-studio-dashboard.png)
+<img src="/imgs/google-studio-dashboard.png" alt="Google DataStudio Screenshot" style="width:70%;">
 
 # Installation
  
 1. Create a new folder on Google Drive where you will store the exported reports. Call it however you like (mine is called "Credit Card Exported Files").
    Enter the folder and make sure to copy the FOLDER_ID from the URL (notice where it is in the screenshot below)
-   ![Exports folder screenshot](/imgs/exports-folder.png)
+   <img src="/imgs/exports-folder.png" alt="Exports folder screenshot" style="width:70%;">
 
-2. Make your own copy of the [template sheet file][https://docs.google.com/spreadsheets/d/1dbRjdAioleE7Nfdc20TusW30sC10efnTOsuDkujoalA/edit?gid=733610508#gid=733610508]
+2. Make your own copy of the ![template sheet file][https://docs.google.com/spreadsheets/d/1dbRjdAioleE7Nfdc20TusW30sC10efnTOsuDkujoalA/edit?gid=733610508#gid=733610508]
 3. Inside the newly-copied file you should find a new menu next to "Extensions" called "Credit card analysis"
-   ![Menu](/imgs/menu.png)
+   <img src="/imgs/menu.png" alt="Menu" style="width:70%;">
 4. Click "Detect analysis file" and make sure you get a message it was completed successfully
-   ![Detect analysis file](/imgs/detect-file.png)
+   <img src="/imgs/detect-file.png" alt="Detect analysis file" style="width:70%;">
 4. Click "Configure report folder" and paste the FOLDER_ID from step 1 into the input field and click OK.
-   ![Input folder ID[(/imgs/folder-input.png)
+   <img src="/imgs/folder-input.png" alt="Input folder ID" style="width:70%;">
 That's it! the file should be ready now.
 
 At any point a Google warning might show up saying you are running an unsafe script.
 If you want to use this system you should click proceed. 
 Concerned? see security clause below.
-   ![Google unsafe warning](/imgs/google-unsafe.png)
+   <img src="/imgs/google-unsafe.png" alt="Google unsafe warning" style="width:70%;">
 
 # Usage
 1. Place an exported report inside the folder created on stage 1 of the installation.
