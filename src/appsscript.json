@@ -1,0 +1,19 @@
+{
+  "timeZone": "Asia/Jerusalem",
+  "dependencies": {},
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/drive.readonly"
+  ],
+  "addOns": {
+    "common": {
+      "name": "Credonizer - Credit card analysis spreadsheet with a really bad name",
+      "logoUrl": "https://images.pexels.com/photos/1420707/pexels-photo-1420707.jpeg"
+    },
+    "sheets": {}
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8"
+}
