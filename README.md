@@ -7,12 +7,12 @@ This is a project that aims to use files produced by Israeli credit card compani
 
 # Installation
  
-1. Create a new folder on Google Drive where you will store the exported reports. Call it however you like (mine is called "Credit Card Exported Files").
+1. Create a new folder on Google Drive where you will store the exported reports. Call it however you like.
    Enter the folder and make sure to copy the FOLDER_ID from the URL (notice where it is in the screenshot below)
    <img src="/imgs/exports-folder.png" alt="Exports folder screenshot" style="width:70%;">
 
 2. Make your own copy of the [template sheet file](https://docs.google.com/spreadsheets/d/1dbRjdAioleE7Nfdc20TusW30sC10efnTOsuDkujoalA/edit?gid=733610508#gid=733610508)
-   (Access is manually provided so it may take a few hours to get access)
+   (Access is manually provided so it might take a few hours to get access)
 4. Inside the newly-copied file you should find a new menu next to "Extensions" called "Credit card analysis"
    <img src="/imgs/menu.png" alt="Menu" style="width:70%;">
 5. Click "Detect analysis file" and make sure you get a message it was completed successfully
